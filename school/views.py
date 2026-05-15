@@ -201,7 +201,7 @@ from django.utils import timezone
 import csv
 from django.http import HttpResponse
 from django.shortcuts import Http404
-from .models import Course, Lesson, Quiz, Question, QuizSubmission, AssignmentSubmission
+from .models import Course, Lesson, Quiz, Question, QuizSubmission, AssignmentSubmission, Subject, LearningResource
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
@@ -408,3 +408,14 @@ def grade_assignments(request):
         return redirect('grade_assignments')
 
     return render(request, 'school/grade_assignments.html', {'submissions': submissions})
++
++
++def learning_content(request):
++    subjects = Subject.objects.all()
++    return render(request, 'school/learning_content.html', {'subjects': subjects})
++
++
++def subject_resources(request, key):
++    subject = get_object_or_404(Subject, key=key)
++    resources = subject.resources.all()
++    return render(request, 'school/subject_resources.html', {'subject': subject, 'resources': resources})

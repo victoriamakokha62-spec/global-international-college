@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Learning Content - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Learning Content</h1>
+    <p>Explore writing lessons, videos, PDFs, audio lessons, and downloadable resources for every subject.</p>
+</div>
+
+<div class="content-section">
+    <h2>Subjects</h2>
+    <div class="grid">
+        {% for subject in subjects %}
+        <div class="card">
+            <h3>{{ subject.title }}</h3>
+            <p>{{ subject.description|default:"Study materials for this subject including lessons, videos and downloads." }}</p>
+            <a href="{% url 'subject_resources' subject.key %}">View resources</a>
+        </div>
+        {% empty %}
+        <p>No learning subjects are available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

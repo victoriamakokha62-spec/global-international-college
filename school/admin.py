@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import StudentProfile, News, ContactMessage, AdmissionApplication, Event, Payment
+from .models import Course, Lesson, Quiz, Question, QuizSubmission, AssignmentSubmission, Subject, LearningResource
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
@@ -45,3 +46,47 @@ class PaymentAdmin(admin.ModelAdmin):
     search_fields = ('phone', 'merchant_request_id', 'checkout_request_id', 'mpesa_receipt_number')
     list_filter = ('status', 'created_at')
     readonly_fields = ('created_at', 'callback_raw')
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_by', 'created_at')
+    search_fields = ('title',)
+
+
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'created_by', 'created_at')
+    search_fields = ('title', 'content')
+
+
+@admin.register(Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'created_by', 'created_at')
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('quiz', 'text')
+
+
+@admin.register(QuizSubmission)
+class QuizSubmissionAdmin(admin.ModelAdmin):
+    list_display = ('quiz', 'student', 'score', 'submitted_at')
+
+
+@admin.register(AssignmentSubmission)
+class AssignmentSubmissionAdmin(admin.ModelAdmin):
+    list_display = ('lesson', 'student', 'grade', 'submitted_at')
++
++
++@admin.register(Subject)
++class SubjectAdmin(admin.ModelAdmin):
++    list_display = ('title', 'key')
++
++
++@admin.register(LearningResource)
++class LearningResourceAdmin(admin.ModelAdmin):
++    list_display = ('title', 'subject', 'resource_type', 'created_at')
++    list_filter = ('subject', 'resource_type')
++    search_fields = ('title', 'description')

@@ -31,4 +31,6 @@ urlpatterns = [
     path('teacher/courses/<int:course_id>/lessons/upload/', views.upload_lesson, name='upload_lesson'),
     path('teacher/quizzes/create/', views.create_quiz, name='create_quiz'),
     path('teacher/assignments/grade/', views.grade_assignments, name='grade_assignments'),
+    path('learning/', views.learning_content, name='learning_content'),
+    path('learning/subject/<slug:key>/', views.subject_resources, name='subject_resources'),
 ]

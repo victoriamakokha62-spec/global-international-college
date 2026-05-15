@@ -128,3 +128,108 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.phone} - {self.amount} ({self.status})"
+
+
+class Course(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=200)
+    content = models.TextField(blank=True)
+    file = models.FileField(upload_to='lessons/', null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
+
+
+class Quiz(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
+    title = models.CharField(max_length=200)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
+
+
+class Question(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField()
+    correct_answer = models.TextField()
+
+    def __str__(self):
+        return self.text[:50]
+
+
+class QuizSubmission(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    answers = models.TextField()  # JSON or simple text map
+    score = models.FloatField(null=True, blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student} - {self.quiz.title}"
+
+
+class AssignmentSubmission(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='assignments/', null=True, blank=True)
+    comment = models.TextField(blank=True)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    graded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='graded_submissions')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student} - {self.lesson.title}"
+
+
+class Subject(models.Model):
+    SUBJECT_CHOICES = [
+        ('english', 'English'),
+        ('arabic', 'Arabic'),
+        ('kiswahili', 'Kiswahili'),
+        ('af_somali', 'Af-Soomaali'),
+        ('mathematics', 'Mathematics'),
+    ]
+    key = models.CharField(max_length=50, choices=SUBJECT_CHOICES, unique=True)
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class LearningResource(models.Model):
+    RESOURCE_TYPES = [
+        ('writing', 'Writing Lesson'),
+        ('video', 'Video Lesson'),
+        ('pdf', 'PDF / Document'),
+        ('audio', 'Audio Lesson'),
+        ('download', 'Downloadable File'),
+    ]
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='resources')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
+    content_text = models.TextField(blank=True)
+    file = models.FileField(upload_to='learning_resources/', null=True, blank=True)
+    video_url = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.subject.title} - {self.title}"
