@@ -143,3 +143,91 @@ def logout_view(request):
 
 
 from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+import requests
+import base64
+import datetime
+from decouple import config
+
+
+def payment_page(request):
+    return render(request, 'school/payment.html')
+
+
+def _get_mpesa_token():
+    """Obtain an OAuth token from Safaricom (sandbox or live depending on keys)."""
+    consumer_key = config('MPESA_CONSUMER_KEY', default='')
+    consumer_secret = config('MPESA_CONSUMER_SECRET', default='')
+    oauth_url = config('MPESA_OAUTH_URL', default='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials')
+
+    auth = requests.auth.HTTPBasicAuth(consumer_key, consumer_secret)
+    resp = requests.get(oauth_url, auth=auth)
+    resp.raise_for_status()
+    return resp.json().get('access_token')
+
+
+@require_POST
+@csrf_exempt
+def mpesa_stk_push(request):
+    """Initiate an M-Pesa STK Push (sandbox-ready).
+
+    Expects POST with `phone` and `amount`.
+    """
+    try:
+        phone = request.POST.get('phone')
+        amount = request.POST.get('amount')
+        if not phone or not amount:
+            return JsonResponse({'success': False, 'error': 'Missing phone or amount'}, status=400)
+
+        # Config from environment
+        shortcode = config('MPESA_SHORTCODE', default='174379')
+        passkey = config('MPESA_PASSKEY', default='bfb279f9aa9bdbcf1...')
+        callback_url = config('MPESA_CALLBACK_URL', default=request.build_absolute_uri('/mpesa/callback/'))
+
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        password_bytes = f"{shortcode}{passkey}{timestamp}".encode('utf-8')
+        password = base64.b64encode(password_bytes).decode('utf-8')
+
+        token = _get_mpesa_token()
+        headers = {'Authorization': f'Bearer {token}'}
+
+        payload = {
+            "BusinessShortCode": shortcode,
+            "Password": password,
+            "Timestamp": timestamp,
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": int(amount),
+            "PartyA": phone,
+            "PartyB": shortcode,
+            "PhoneNumber": phone,
+            "CallBackURL": callback_url,
+            "AccountReference": "GICPayment",
+            "TransactionDesc": "Payment to Global International College"
+        }
+
+        stk_url = config('MPESA_STK_URL', default='https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest')
+        r = requests.post(stk_url, json=payload, headers=headers, timeout=15)
+        r.raise_for_status()
+        return JsonResponse({'success': True, 'response': r.json()})
+
+    except requests.HTTPError as e:
+        return JsonResponse({'success': False, 'error': str(e), 'response': getattr(e, 'response', {}).text}, status=500)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@csrf_exempt
+def mpesa_callback(request):
+    """Receive M-Pesa callback notifications (STK Push result)."""
+    try:
+        data = request.body.decode('utf-8')
+        # In production parse JSON, validate signature, and update order status
+        # For now just log and acknowledge
+        print('MPESA CALLBACK RECEIVED:', data)
+        return HttpResponse(status=200)
+    except Exception as e:
+        print('MPESA CALLBACK ERROR:', e)
+        return HttpResponse(status=500)

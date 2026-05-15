@@ -14,4 +14,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('portal/', views.portal, name='portal'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('payment/', views.payment_page, name='payment'),
+    path('mpesa/stk_push/', views.mpesa_stk_push, name='mpesa_stk_push'),
+    path('mpesa/callback/', views.mpesa_callback, name='mpesa_callback'),
 ]
