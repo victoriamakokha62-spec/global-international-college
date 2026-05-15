@@ -66,10 +66,29 @@ def register(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('portal')
+            user = form.save(commit=False)
+            # Deactivate account until it is confirmed via email
+            user.is_active = False
+            # If username is required, create one from email
+            if not user.username:
+                user.username = user.email.split('@')[0]
+            user.save()
+
+            # send verification email
+            current_site = get_current_site(request)
+            subject = 'Activate Your Global International College Account'
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            activation_link = request.build_absolute_uri(f"/register/activate/{uid}/{token}/")
+            message = render_to_string('school/activation_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'activation_link': activation_link,
+            })
+            send_mail(subject, message, None, [user.email])
+
+            messages.success(request, 'Registration successful! Check your email to activate your account.')
+            return redirect('login')
     else:
         form = StudentRegistrationForm()
     return render(request, 'school/register.html', {'form': form})
@@ -91,6 +110,9 @@ def login_view(request):
             user = authenticate(request, username=email_or_username, password=password)
         
         if user and user.check_password(password):
+            if not user.is_active:
+                messages.error(request, 'Account not activated. Check your email for the activation link.')
+                return render(request, 'school/login.html')
             user = authenticate(request, username=user.username, password=password)
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name}!')
@@ -99,6 +121,22 @@ def login_view(request):
             messages.error(request, 'Invalid credentials!')
     
     return render(request, 'school/login.html')
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Your account has been activated. You can now log in.')
+        return redirect('login')
+    else:
+        return render(request, 'school/activation_invalid.html')
 
 
 @login_required(login_url='login')
@@ -143,6 +181,12 @@ def logout_view(request):
 
 
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -156,6 +200,10 @@ from django.db.models import Sum
 from django.utils import timezone
 import csv
 from django.http import HttpResponse
+from django.shortcuts import Http404
+from .models import Course, Lesson, Quiz, Question, QuizSubmission, AssignmentSubmission
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 
 
 def payment_page(request):
@@ -285,3 +333,78 @@ def export_payments_csv(request):
         writer.writerow([p.id, p.phone, p.amount, p.status, p.merchant_request_id or '', p.checkout_request_id or '', p.mpesa_receipt_number or '', p.result_code or '', p.result_desc or '', p.created_at])
 
     return response
+
+
+@user_passes_test(lambda u: u.is_staff)
+def teacher_dashboard(request):
+    courses = Course.objects.filter(created_by=request.user)
+    my_lessons = Lesson.objects.filter(created_by=request.user)[:10]
+    my_quizzes = Quiz.objects.filter(created_by=request.user)[:10]
+    context = {'courses': courses, 'my_lessons': my_lessons, 'my_quizzes': my_quizzes}
+    return render(request, 'school/teacher_dashboard.html', context)
+
+
+@user_passes_test(lambda u: u.is_staff)
+@require_http_methods(['GET', 'POST'])
+def manage_courses(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        if title:
+            Course.objects.create(title=title, description=description, created_by=request.user)
+            return redirect('manage_courses')
+
+    courses = Course.objects.filter(created_by=request.user)
+    return render(request, 'school/manage_courses.html', {'courses': courses})
+
+
+@user_passes_test(lambda u: u.is_staff)
+@require_http_methods(['GET', 'POST'])
+def upload_lesson(request, course_id):
+    try:
+        course = Course.objects.get(id=course_id, created_by=request.user)
+    except Course.DoesNotExist:
+        raise Http404()
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        file = request.FILES.get('file')
+        Lesson.objects.create(course=course, title=title, content=content, file=file, created_by=request.user)
+        return redirect('manage_courses')
+
+    return render(request, 'school/upload_lesson.html', {'course': course})
+
+
+@user_passes_test(lambda u: u.is_staff)
+@require_http_methods(['GET', 'POST'])
+def create_quiz(request):
+    if request.method == 'POST':
+        course_id = request.POST.get('course')
+        title = request.POST.get('title')
+        # For simplicity, accept one question in the form
+        q_text = request.POST.get('question')
+        q_answer = request.POST.get('answer')
+        course = Course.objects.get(id=course_id, created_by=request.user)
+        quiz = Quiz.objects.create(course=course, title=title, created_by=request.user)
+        if q_text:
+            Question.objects.create(quiz=quiz, text=q_text, correct_answer=q_answer)
+        return redirect('teacher_dashboard')
+
+    courses = Course.objects.filter(created_by=request.user)
+    return render(request, 'school/create_quiz.html', {'courses': courses})
+
+
+@user_passes_test(lambda u: u.is_staff)
+def grade_assignments(request):
+    submissions = AssignmentSubmission.objects.filter(lesson__course__created_by=request.user).order_by('-submitted_at')
+    if request.method == 'POST':
+        sub_id = request.POST.get('submission_id')
+        grade = request.POST.get('grade')
+        submission = AssignmentSubmission.objects.get(id=sub_id, lesson__course__created_by=request.user)
+        submission.grade = grade
+        submission.graded_by = request.user
+        submission.save()
+        return redirect('grade_assignments')
+
+    return render(request, 'school/grade_assignments.html', {'submissions': submissions})
