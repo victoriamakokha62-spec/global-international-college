@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Global International College</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">🎓 Global International College</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="academics.html">Academics</a></li>
+                    <li><a href="admissions.html">Admissions</a></li>
+                    <li><a href="news.html">News</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="content-section">
+            <h2>Payment System</h2>
+            <p>We support PayPal and M-Pesa. Below are sample client-side options and integration notes for each provider.</p>
+
+            <h3>PayPal (Client-side sample)</h3>
+            <p>This link goes to PayPal. To accept payments, replace the URL with your PayPal Checkout integration or hosted button.</p>
+            <p><a class="button" href="https://www.paypal.com/" target="_blank" rel="noopener">Pay with PayPal</a></p>
+
+            <h3>M-Pesa (Instructions)</h3>
+            <p>M-Pesa requires server-side integration with Safaricom's APIs or use of a payment gateway that supports M-Pesa. Typical flow:</p>
+            <ul>
+                <li>Customer enters phone number and amount.</li>
+                <li>Your server requests an STK Push from Safaricom (requires credentials).</li>
+                <li>Customer approves the payment on their phone.</li>
+                <li>Your server receives confirmation via callback and updates order status.</li>
+            </ul>
+            <p>Example (server-side) fields to collect: `phone`, `amount`, `reference`.</p>
+
+            <h3>Testing</h3>
+            <p>For testing PayPal, use the PayPal sandbox and client-side SDK. For M-Pesa, use sandbox/test credentials from your payment gateway or Safaricom developer portal.</p>
+
+            <p>If you want, I can implement a real PayPal Checkout integration (client-side SDK) or scaffold a server-side M-Pesa STK Push using Django — tell me which you'd prefer and provide merchant/sandbox credentials when ready.</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="about.html">About Us</a>
+                <a href="academics.html">Academics</a>
+                <a href="admissions.html">Admissions</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p>Email: info@globalcollege.edu</p>
+                <p>Phone: +254 712 345 678</p>
+                <p>Address: Wajir, Kenya</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <a href="#">Facebook</a>
+                <a href="#">Twitter</a>
+                <a href="#">Instagram</a>
+            </div>
+        </div>
+        <p>&copy; 2026 Global International College. All rights reserved.</p>
+    </footer>
+</body>
+</html>
