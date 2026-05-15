@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Admissions - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Admissions</h1>
+    <p>Join Our Global Community of Learners</p>
+</div>
+
+<div class="content-section">
+    <h2>Submit Your Application</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <label>First Name *</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <small class="text-danger">{{ form.first_name.errors }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label>Last Name *</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <small class="text-danger">{{ form.last_name.errors }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <small class="text-danger">{{ form.email.errors }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label>Phone *</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <small class="text-danger">{{ form.phone.errors }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Date of Birth *</label>
+                {{ form.date_of_birth }}
+                {% if form.date_of_birth.errors %}
+                    <small class="text-danger">{{ form.date_of_birth.errors }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label>Desired Grade *</label>
+                {{ form.desired_grade }}
+                {% if form.desired_grade.errors %}
+                    <small class="text-danger">{{ form.desired_grade.errors }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <label>Current School *</label>
+        {{ form.current_school }}
+
+        <label>Parent Name *</label>
+        {{ form.parent_name }}
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Parent Email *</label>
+                {{ form.parent_email }}
+            </div>
+            <div class="col-md-6">
+                <label>Parent Phone *</label>
+                {{ form.parent_phone }}
+            </div>
+        </div>
+
+        <label>Tell Us About Your Child *</label>
+        {{ form.message }}
+
+        <label>Upload Documents (PDF, DOC, DOCX)</label>
+        {{ form.documents }}
+
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+    </form>
+</div>
+
+<div class="content-section">
+    <h2>Application Requirements</h2>
+    <ol>
+        <li>Completed application form</li>
+        <li>Previous academic records and transcripts</li>
+        <li>Entrance examination (for grades 6-12) - arranged after application</li>
+        <li>Teacher recommendations (2-3)</li>
+        <li>Personal essay or written statement</li>
+        <li>Parent/Guardian interview</li>
+    </ol>
+
+    <h3>Key Dates (2026)</h3>
+    <ul>
+        <li><strong>Application Deadline:</strong> May 31, 2026</li>
+        <li><strong>Entrance Exams:</strong> June 10-12, 2026</li>
+        <li><strong>Interview Period:</strong> June 15-25, 2026</li>
+        <li><strong>Admission Results:</strong> July 5, 2026</li>
+        <li><strong>School Year Begins:</strong> August 25, 2026</li>
+    </ul>
+</div>
+
+<div class="content-section">
+    <h2>Tuition & Financial Aid</h2>
+    <h3>Annual Tuition (2026-2027)</h3>
+    <ul>
+        <li>Primary (Grades 1-5): $12,000 per year</li>
+        <li>Middle School (Grades 6-8): $15,000 per year</li>
+        <li>High School (Grades 9-12): $18,000 per year</li>
+    </ul>
+
+    <h3>Financial Assistance</h3>
+    <p>We offer need-based scholarships and financial aid packages to deserving students. Merit scholarships are available for exceptional academic and artistic achievements.</p>
+</div>
+{% endblock %}

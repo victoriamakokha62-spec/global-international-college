@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}News - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>News & Updates</h1>
+    <p>Latest from Global International College</p>
+</div>
+
+<div class="content-section">
+    <h2>All News Articles</h2>
+    
+    {% if news_list %}
+        {% for article in news_list %}
+            <div class="card">
+                <h3>{{ article.title }}</h3>
+                <p><small class="text-muted">Published: {{ article.created_date|date:"M d, Y" }}</small></p>
+                {% if article.image %}
+                    <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 100%; margin: 1rem 0; border-radius: 8px;">
+                {% endif %}
+                <p>{{ article.content|truncatewords:50 }}</p>
+                <a href="{% url 'news_detail' article.id %}" class="btn btn-primary btn-sm">Read Full Article</a>
+            </div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <p>No news articles available at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

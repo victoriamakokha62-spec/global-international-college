@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Portal - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome, {{ user.first_name }}!</h1>
+    <p>Your Student Portal</p>
+</div>
+
+<div class="content-section">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Profile Information</h2>
+            {% if student %}
+                <div class="card">
+                    <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Enrollment Number:</strong> {{ student.enrollment_number }}</p>
+                    <p><strong>Grade:</strong> {{ student.get_grade_display }}</p>
+                    <p><strong>Enrolled Date:</strong> {{ student.enrolled_date|date:"M d, Y" }}</p>
+                    <p><strong>Parent Name:</strong> {{ student.parent_name }}</p>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Your profile is incomplete. <a href="{% url 'edit_profile' %}">Complete your profile now</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <h2>Quick Actions</h2>
+            <div class="card">
+                <ul>
+                    <li><a href="{% url 'academics' %}">View Academic Programs</a></li>
+                    <li><a href="{% url 'news' %}">Read Latest News</a></li>
+                    <li><a href="{% url 'contact' %}">Contact Administration</a></li>
+                    <li><a href="{% url 'edit_profile' %}">Update Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

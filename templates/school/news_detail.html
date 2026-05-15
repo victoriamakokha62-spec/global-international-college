@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article.title }} - Global International College{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <h1>{{ article.title }}</h1>
+    <p><small class="text-muted">Published: {{ article.created_date|date:"M d, Y" }} | By {{ article.author.get_full_name }}</small></p>
+    
+    {% if article.image %}
+        <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 100%; margin: 1rem 0; border-radius: 8px;">
+    {% endif %}
+    
+    <div style="margin-top: 1rem;">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <hr>
+    <a href="{% url 'news' %}" class="btn btn-secondary">Back to All News</a>
+</div>
+{% endblock %}

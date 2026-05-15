@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Student Registration</h1>
+    <p>Create Your Account</p>
+</div>
+
+<div class="content-section">
+    <div style="max-width: 500px; margin: 0 auto;">
+        <h2>Create New Account</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label>First Name *</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <small class="text-danger">{{ form.first_name.errors }}</small>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label>Last Name *</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <small class="text-danger">{{ form.last_name.errors }}</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <label>Email *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <small class="text-danger">{{ form.email.errors }}</small>
+            {% endif %}
+
+            <label>Password *</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <small class="text-danger">{{ form.password1.errors }}</small>
+            {% endif %}
+
+            <label>Confirm Password *</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <small class="text-danger">{{ form.password2.errors }}</small>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block" style="width: 100%; margin-top: 1rem;">Register</button>
+        </form>
+
+        <p style="margin-top: 1rem; text-align: center;">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Edit Your Profile</h1>
+    <p>Update Your Information</p>
+</div>
+
+<div class="content-section">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label>Grade *</label>
+            {{ form.grade }}
+            {% if form.grade.errors %}
+                <small class="text-danger">{{ form.grade.errors }}</small>
+            {% endif %}
+
+            <label>Date of Birth *</label>
+            {{ form.date_of_birth }}
+            {% if form.date_of_birth.errors %}
+                <small class="text-danger">{{ form.date_of_birth.errors }}</small>
+            {% endif %}
+
+            <label>Address *</label>
+            {{ form.address }}
+            {% if form.address.errors %}
+                <small class="text-danger">{{ form.address.errors }}</small>
+            {% endif %}
+
+            <label>Phone *</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+                <small class="text-danger">{{ form.phone.errors }}</small>
+            {% endif %}
+
+            <label>Parent Name *</label>
+            {{ form.parent_name }}
+            {% if form.parent_name.errors %}
+                <small class="text-danger">{{ form.parent_name.errors }}</small>
+            {% endif %}
+
+            <label>Parent Email *</label>
+            {{ form.parent_email }}
+            {% if form.parent_email.errors %}
+                <small class="text-danger">{{ form.parent_email.errors }}</small>
+            {% endif %}
+
+            <label>Parent Phone *</label>
+            {{ form.parent_phone }}
+            {% if form.parent_phone.errors %}
+                <small class="text-danger">{{ form.parent_phone.errors }}</small>
+            {% endif %}
+
+            <label>Profile Picture</label>
+            {{ form.profile_picture }}
+            {% if form.profile_picture.errors %}
+                <small class="text-danger">{{ form.profile_picture.errors }}</small>
+            {% endif %}
+
+            <div style="margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'portal' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

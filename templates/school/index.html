@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to Global International College</h1>
+    <p>Educating Global Leaders for Tomorrow's World</p>
+</div>
+
+<div class="content-section">
+    <h2>Portal Features</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>👥 User System</h3>
+            <p>Register & login, email verification, password reset, student dashboard, profile management and notifications.</p>
+        </div>
+        <div class="card">
+            <h3>👨‍🏫 Teacher System</h3>
+            <p>Upload lessons, create quizzes, manage courses, grade assignments, track attendance, schedule classes and teacher announcements.</p>
+        </div>
+        <div class="card">
+            <h3>📘 Learning Content</h3>
+            <p>Video lessons, written content, PDFs, audio downloads, and subject-specific resources for English, Arabic, Kiswahili, Af-Soomaali, Mathematics and more.</p>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="card">
+            <h3>🛠️ Learning Tools</h3>
+            <p>Quizzes & exams, assignments, progress tracking, certificates, study planners and support materials.</p>
+        </div>
+        <div class="card">
+            <h3>📝 Attendance Tracking</h3>
+            <p>Daily attendance, present/absent/late status, reports, summaries and performance insights.</p>
+        </div>
+        <div class="card">
+            <h3>🛡️ Admin & Security</h3>
+            <p>Manage users, payments & reports, analytics, SSL, 2FA, backups, firewall protection, performance and mobile-friendly access.</p>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Why Choose Global International College?</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>🌍 Global Perspective</h3>
+            <p>We provide an international curriculum that prepares students for a globalized world with diverse learning opportunities.</p>
+        </div>
+        <div class="card">
+            <h3>📚 Quality Education</h3>
+            <p>Our experienced faculty and modern teaching methods ensure excellence in academics and personal development.</p>
+        </div>
+        <div class="card">
+            <h3>🏆 Success Rates</h3>
+            <p>Our students achieve outstanding results, gaining admission to top universities worldwide.</p>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Latest News</h2>
+    {% if news %}
+        <div class="grid">
+            {% for article in news %}
+                <div class="card">
+                    <h3>{{ article.title }}</h3>
+                    <p><small class="text-muted">{{ article.created_date|date:"M d, Y" }}</small></p>
+                    <p>{{ article.content|truncatewords:30 }}</p>
+                    <a href="{% url 'news_detail' article.id %}" class="btn btn-primary btn-sm">Read More</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No news available at the moment.</p>
+    {% endif %}
+</div>
+
+<div class="content-section">
+    <h2>Upcoming Events</h2>
+    {% if events %}
+        <ul>
+            {% for event in events %}
+                <li><strong>{{ event.date|date:"M d, Y" }}:</strong> {{ event.title }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events scheduled at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

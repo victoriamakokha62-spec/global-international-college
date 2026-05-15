@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact - Global International College{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Contact Us</h1>
+    <p>We'd Love to Hear from You</p>
+</div>
+
+<div class="content-section">
+    <h2>Contact Information</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>📍 Address</h3>
+            <p>Wajir, Kenya</p>
+        </div>
+        <div class="card">
+            <h3>📞 Phone</h3>
+            <p>Main Office: +254 712 345 678<br>Admissions: +254 722 345 679<br>Fax: +254 733 345 680</p>
+        </div>
+        <div class="card">
+            <h3>📧 Email</h3>
+            <p>General: info@globalcollege.edu<br>Admissions: admissions@globalcollege.edu<br>Support: support@globalcollege.edu</p>
+        </div>
+        <div class="card">
+            <h3>⏰ Office Hours</h3>
+            <p>Monday - Friday: 8:00 AM - 5:00 PM<br>Saturday: 9:00 AM - 1:00 PM<br>Sunday: Closed</p>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Send Us a Message</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <label>Your Name *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <small class="text-danger">{{ form.name.errors }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label>Your Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <small class="text-danger">{{ form.email.errors }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <label>Phone Number *</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+            <small class="text-danger">{{ form.phone.errors }}</small>
+        {% endif %}
+
+        <label>Subject *</label>
+        {{ form.subject }}
+        {% if form.subject.errors %}
+            <small class="text-danger">{{ form.subject.errors }}</small>
+        {% endif %}
+
+        <label>Your Message *</label>
+        {{ form.message }}
+        {% if form.message.errors %}
+            <small class="text-danger">{{ form.message.errors }}</small>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
+
+<div class="content-section">
+    <h2>Follow Us on Social Media</h2>
+    <p>Stay connected with the latest news and updates from Global International College.</p>
+    <div class="grid">
+        <div class="card">
+            <h3>Facebook</h3>
+            <p>@globalinternationalcollege</p>
+            <p>Daily updates, photos, and announcements</p>
+        </div>
+        <div class="card">
+            <h3>Instagram</h3>
+            <p>@globalicollegge</p>
+            <p>Behind-the-scenes photos and student highlights</p>
+        </div>
+        <div class="card">
+            <h3>Twitter</h3>
+            <p>@GICOfficial</p>
+            <p>News, achievements, and events</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
