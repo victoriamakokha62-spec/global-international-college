@@ -102,3 +102,29 @@ class Event(models.Model):
     
     def __str__(self):
         return self.title
+
+
+class Payment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    phone = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    merchant_request_id = models.CharField(max_length=100, null=True, blank=True)
+    checkout_request_id = models.CharField(max_length=100, null=True, blank=True)
+    mpesa_receipt_number = models.CharField(max_length=100, null=True, blank=True)
+    result_code = models.IntegerField(null=True, blank=True)
+    result_desc = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    callback_raw = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.phone} - {self.amount} ({self.status})"

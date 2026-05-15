@@ -17,4 +17,6 @@ urlpatterns = [
     path('payment/', views.payment_page, name='payment'),
     path('mpesa/stk_push/', views.mpesa_stk_push, name='mpesa_stk_push'),
     path('mpesa/callback/', views.mpesa_callback, name='mpesa_callback'),
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/payments/export_csv/', views.export_payments_csv, name='export_payments_csv'),
 ]

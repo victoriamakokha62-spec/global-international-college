@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-section">
+    <h2>Admin Dashboard</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>Manage Users</h3>
+            <p>Total users: <strong>{{ total_users }}</strong></p>
+            <p><a href="/admin/auth/user/">Open Users in Admin</a></p>
+        </div>
+        <div class="card">
+            <h3>Payments & Reports</h3>
+            <p>Total payments: <strong>{{ total_payments }}</strong></p>
+            <p>Successful payments amount: <strong>KES {{ successful_payments_amount }}</strong></p>
+            <p>Failed payments: <strong>{{ failed_payments_count }}</strong></p>
+            <p><a href="/admin/school/payment/">Open Payments in Admin</a> · <a href="{% url 'export_payments_csv' %}">Export CSV</a></p>
+        </div>
+        <div class="card">
+            <h3>Analytics</h3>
+            <canvas id="paymentsChart" width="400" height="150"></canvas>
+        </div>
+    </div>
+
+    <h3>Recent Payments</h3>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Phone</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Amount</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Status</th>
+                <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">When</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in recent_payments %}
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ p.phone }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">KES {{ p.amount }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ p.status }}</td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">{{ p.created_at|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No payments yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('paymentsChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            label: 'Successful payments (KES)',
+            backgroundColor: 'rgba(54,162,235,0.2)',
+            borderColor: 'rgba(54,162,235,1)',
+            data: {{ chart_data|safe }}
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}

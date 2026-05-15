@@ -151,6 +151,11 @@ import requests
 import base64
 import datetime
 from decouple import config
+from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Sum
+from django.utils import timezone
+import csv
+from django.http import HttpResponse
 
 
 def payment_page(request):
@@ -231,3 +236,52 @@ def mpesa_callback(request):
     except Exception as e:
         print('MPESA CALLBACK ERROR:', e)
         return HttpResponse(status=500)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def admin_dashboard(request):
+    """Staff-only admin dashboard with basic analytics and links."""
+    total_users = User.objects.count()
+    total_students = StudentProfile.objects.count()
+    total_payments = Payment.objects.count()
+    successful_payments = Payment.objects.filter(status='success').aggregate(total=Sum('amount'))['total'] or 0
+    failed_payments = Payment.objects.filter(status='failed').count()
+
+    # payments per day for last 7 days
+    today = timezone.now().date()
+    labels = []
+    data = []
+    for i in range(6, -1, -1):
+        day = today - timezone.timedelta(days=i)
+        labels.append(day.strftime('%b %d'))
+        day_sum = Payment.objects.filter(created_at__date=day, status='success').aggregate(total=Sum('amount'))['total'] or 0
+        data.append(float(day_sum))
+
+    recent_payments = Payment.objects.order_by('-created_at')[:10]
+
+    context = {
+        'total_users': total_users,
+        'total_students': total_students,
+        'total_payments': total_payments,
+        'successful_payments_amount': successful_payments,
+        'failed_payments_count': failed_payments,
+        'chart_labels': labels,
+        'chart_data': data,
+        'recent_payments': recent_payments,
+    }
+    return render(request, 'school/admin_dashboard.html', context)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def export_payments_csv(request):
+    """Export payments as CSV (staff only)."""
+    payments = Payment.objects.order_by('-created_at')
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="payments.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['id', 'phone', 'amount', 'status', 'merchant_request_id', 'checkout_request_id', 'mpesa_receipt_number', 'result_code', 'result_desc', 'created_at'])
+    for p in payments:
+        writer.writerow([p.id, p.phone, p.amount, p.status, p.merchant_request_id or '', p.checkout_request_id or '', p.mpesa_receipt_number or '', p.result_code or '', p.result_desc or '', p.created_at])
+
+    return response

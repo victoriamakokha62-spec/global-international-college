@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StudentProfile, News, ContactMessage, AdmissionApplication, Event
+from .models import StudentProfile, News, ContactMessage, AdmissionApplication, Event, Payment
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
@@ -37,3 +37,11 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'date', 'location')
     search_fields = ('title', 'location')
     list_filter = ('date',)
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('phone', 'amount', 'status', 'created_at')
+    search_fields = ('phone', 'merchant_request_id', 'checkout_request_id', 'mpesa_receipt_number')
+    list_filter = ('status', 'created_at')
+    readonly_fields = ('created_at', 'callback_raw')
